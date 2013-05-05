@@ -20,6 +20,7 @@ import javax.swing.border.EmptyBorder;
 
 public class MainCalculatorGUI implements ActionListener {
 
+	private UncertaintyCalculator calculator;
 	private ArrayList<InputFrame> dataSets;
 	private int numberOfSets;
 	private JFrame frame;
@@ -29,17 +30,21 @@ public class MainCalculatorGUI implements ActionListener {
 
 
 	public MainCalculatorGUI(){
+		calculator = new UncertaintyCalculator();
 		dataSets = new ArrayList<InputFrame>();
 	}
 
 
 	private void startDataEntry() {
+		calculator.clearData();
+		dataSets.clear();
 		System.out.println("Data Entry Started!");
 		String input = JOptionPane.showInputDialog("How Many Sets of Data Are you Going to inport?");
 		try{
 			Integer.parseInt(input);
 		}catch(NumberFormatException e){
 			JOptionPane.showMessageDialog(frame, "Make Sure You Typed In a Valid Number","Number Error",JOptionPane.WARNING_MESSAGE);
+			return;
 		}
 		numberOfSets = (int) Integer.parseInt(input);
 		dataSets.add(new InputFrame(this,0));
@@ -129,11 +134,15 @@ public class MainCalculatorGUI implements ActionListener {
 
 		if(ae.getActionCommand().equals("DataIn")){
 			System.out.println("Data Input!");
+			calculator.addDataSet(dataSets.get(dataSets.size()-1).getInput());
 			if (dataSets.size()<numberOfSets){
 				dataSets.add(new InputFrame(this,dataSets.size()));
 				dataSets.get(dataSets.size()-1).makeFrame();
 			}else{
 				System.out.println("Data is all in!");
+				calculator.calculateAverageDataSet();
+				calculator.printAllDataSetsToConsole();
+				calculator.printAverageDataSetToConsole();
 			}
 			
 		}

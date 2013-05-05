@@ -1,10 +1,8 @@
 package uncertaintyCalculator;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,7 +11,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -33,6 +30,10 @@ public class InputFrame implements DocumentListener,ActionListener {
 		this.owner = owner;
 		dataSet = dataSetNumber;
 	}
+	
+	public String getInput(){
+		return dataInput;
+	}
 
 	public void makeFrame(){
 		frame = new JFrame("Data Set " + (dataSet+1));
@@ -44,6 +45,7 @@ public class InputFrame implements DocumentListener,ActionListener {
 		
 		inputField = new JTextArea();
 		inputField.getDocument().addDocumentListener(this);
+		inputField.setPreferredSize(new Dimension(200,100));
 		
 		c.gridwidth = 1;
 		c.gridheight = 2;
