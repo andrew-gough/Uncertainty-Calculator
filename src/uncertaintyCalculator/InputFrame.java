@@ -6,15 +6,18 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-public class InputFrame implements DocumentListener,ActionListener {
+public class InputFrame implements DocumentListener,ActionListener,WindowListener {
 
 	private ActionListener owner;
 
@@ -25,6 +28,7 @@ public class InputFrame implements DocumentListener,ActionListener {
 	private JTextArea inputField;
 	private JButton exitButton;
 	private JButton inputButton;
+	private JScrollPane scrollPane;
 
 	public InputFrame(ActionListener owner,int dataSetNumber){
 		this.owner = owner;
@@ -37,6 +41,8 @@ public class InputFrame implements DocumentListener,ActionListener {
 
 	public void makeFrame(){
 		frame = new JFrame("Data Set " + (dataSet+1));
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame.addWindowListener(this);
 		JPanel contentPane = (JPanel)frame.getContentPane();
 //		contentPane.setBorder(new EmptyBorder(12, 12, 12, 12));
 		contentPane.setLayout(new GridBagLayout());
@@ -45,7 +51,9 @@ public class InputFrame implements DocumentListener,ActionListener {
 		
 		inputField = new JTextArea();
 		inputField.getDocument().addDocumentListener(this);
-		inputField.setPreferredSize(new Dimension(200,100));
+		
+		scrollPane = new JScrollPane(inputField);
+		scrollPane.setPreferredSize(new Dimension(200,100));
 		
 		c.gridwidth = 1;
 		c.gridheight = 2;
@@ -54,7 +62,7 @@ public class InputFrame implements DocumentListener,ActionListener {
 		c.weighty = 1;
 		c.gridx = 0;
 		c.gridy = 0;
-		contentPane.add(inputField,c);
+		contentPane.add(scrollPane,c);
 
 		
 		inputButton = new JButton("Input");
@@ -119,6 +127,48 @@ public class InputFrame implements DocumentListener,ActionListener {
 	@Override
 	public void removeUpdate(DocumentEvent arg0) {
 		frame.repaint();
+		
+	}
+
+	@Override
+	public void windowActivated(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowClosed(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowClosing(WindowEvent arg0) {
+		this.owner.actionPerformed(new java.awt.event.ActionEvent(this,0,"DataExit"));
+		frame.dispose();
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowIconified(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowOpened(WindowEvent arg0) {
+		// TODO Auto-generated method stub
 		
 	}
 }

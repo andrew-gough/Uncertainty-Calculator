@@ -7,27 +7,118 @@ public class UncertaintyCalculator {
 
 	private ArrayList<ArrayList<ArrayList<Double>>> storedData;
 	private ArrayList<ArrayList<Double>> averageDataSet;
-	private ArrayList<ArrayList<Double>> currentDataSet;
+	private ArrayList<Double> percentageUncert;
 
 	public UncertaintyCalculator(){
 		averageDataSet = new ArrayList<ArrayList<Double>>();
+		percentageUncert = new ArrayList<Double>();
 		storedData = new ArrayList<ArrayList<ArrayList<Double>>>();
-		currentDataSet = new ArrayList<ArrayList<Double>>();
 		//DataSetIndex,X,Y
 
 	}
-
-	public boolean selectDataSet(int index){
-		if(index<0||index>=storedData.size()){
-			return false;
-		}else{
-			currentDataSet = storedData.get(index);
-			return true;
+	
+	public void fillMaxMinusMin(){
+		int dataNumber = 0;
+		int i = 0;
+		int ii = 0;
+		ArrayList<ArrayList<Double>> maxMinusMin = new ArrayList<ArrayList<Double>>();
+		double max = 0;
+		double min = Double.MAX_VALUE;
+		ArrayList<Double> maxMin = new ArrayList<Double>();
+		while(i<storedData.get(dataNumber).size()){
+			while(ii<storedData.get(dataNumber).get(i).size()){
+				while(dataNumber<storedData.size()){
+					if(max<storedData.get(dataNumber).get(i).get(ii)){
+						max = storedData.get(dataNumber).get(i).get(ii);
+					}
+					if(min>storedData.get(dataNumber).get(i).get(ii)){
+						min = storedData.get(dataNumber).get(i).get(ii);
+					}
+					dataNumber++;
+				}
+				maxMin.add(max-min);
+				max = 0;
+				min = Double.MAX_VALUE;
+				dataNumber = 0;
+				ii++;
+			}
+			ii = 0;
+			maxMinusMin.add(maxMin);
+			maxMin = new ArrayList<Double>();
+			i++;
 		}
+		System.out.println(maxMinusMin);
+		
+		
+		i = 0;
+		ii = 0;
+		while(i<maxMinusMin.size()){
+			while(ii<maxMinusMin.get(i).size()){
+				maxMinusMin.get(i).set(ii,(100*maxMinusMin.get(i).get(ii))/averageDataSet.get(i).get(ii));
+				ii++;
+			}
+			ii = 0;
+			i++;
+		}
+		System.out.println(maxMinusMin);
+		
+		i = 0;
+		ii = 0;
+		double total = 0;
+		while(ii<maxMinusMin.get(0).size()){
+			while(i<maxMinusMin.size()){
+				total = total + maxMinusMin.get(i).get(ii);
+				i++;
+			}
+			percentageUncert.add(total/maxMinusMin.size());
+			i = 0;
+			ii++;
+		}
+		System.out.println(percentageUncert);
+		
+		
 	}
 
+
 	public void clearData(){
+		averageDataSet.clear();
 		storedData.clear();
+		percentageUncert.clear();
+	}
+	
+	
+	public double getColumnUnCert(int index){
+		return percentageUncert.get(index);
+	}
+	
+	public int getColumnsOfData(){
+		return averageDataSet.get(0).size();
+	}
+	
+	public int getSetsOfData(){
+		return storedData.size();
+	}
+	
+	public ArrayList<ArrayList<Double>> getDataSet(int index){
+		if(index<0||index>=storedData.size()){
+			return null;
+		}else{
+			return storedData.get(index);
+		}
+	}
+	
+	public ArrayList<ArrayList<Double>> getAverageDataSet(){
+		return averageDataSet;
+	}
+	
+	public ArrayList<Double> getAverageDataColumn(int column){
+		int i = 0;
+		ArrayList<Double> output = new ArrayList<Double>();
+		while(i<averageDataSet.size()){
+			output.add(averageDataSet.get(i).get(column));
+			i++;
+		}
+		return output;
 	}
 	
 	public void calculateAverageDataSet(){
@@ -86,7 +177,7 @@ public class UncertaintyCalculator {
 			while(yCoord < storedData.get(dataSetNumber).size()){
 				int xCoord = 0;
 				while(xCoord<storedData.get(dataSetNumber).get(yCoord).size()){
-					System.out.println(storedData.get(dataSetNumber).get(xCoord).get(yCoord));
+					System.out.println(storedData.get(dataSetNumber).get(yCoord).get(xCoord));
 					xCoord++;
 				}
 				yCoord++;
@@ -107,7 +198,7 @@ public class UncertaintyCalculator {
 			while(yCoord < averageDataSet.size()){
 				int xCoord = 0;
 				while(xCoord<averageDataSet.get(yCoord).size()){
-					System.out.println(averageDataSet.get(xCoord).get(yCoord));
+					System.out.println(averageDataSet.get(yCoord).get(xCoord));
 					xCoord++;
 				}
 				yCoord++;

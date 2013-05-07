@@ -1,25 +1,23 @@
 package uncertaintyCalculator;
 
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import java.net.URI;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 
 public class MainCalculatorGUI implements ActionListener {
 
+	private DisplayingWindow display;
 	private UncertaintyCalculator calculator;
 	private ArrayList<InputFrame> dataSets;
 	private int numberOfSets;
@@ -31,6 +29,7 @@ public class MainCalculatorGUI implements ActionListener {
 
 	public MainCalculatorGUI(){
 		calculator = new UncertaintyCalculator();
+		display = new DisplayingWindow(calculator);
 		dataSets = new ArrayList<InputFrame>();
 	}
 
@@ -41,25 +40,29 @@ public class MainCalculatorGUI implements ActionListener {
 		System.out.println("Data Entry Started!");
 		String input = JOptionPane.showInputDialog("How Many Sets of Data Are you Going to inport?");
 		try{
-			Integer.parseInt(input);
+			Integer.parseInt(input.trim());
 		}catch(NumberFormatException e){
 			JOptionPane.showMessageDialog(frame, "Make Sure You Typed In a Valid Number","Number Error",JOptionPane.WARNING_MESSAGE);
 			return;
+		}catch(NullPointerException e){
+			System.out.println("User Exited the Data Entry");
+			return;
 		}
-		numberOfSets = (int) Integer.parseInt(input);
+		numberOfSets = (int) Integer.parseInt(input.trim());
 		dataSets.add(new InputFrame(this,0));
 		dataSets.get(0).makeFrame();
 	}
 
-	private void checkFrameSize(){
-		frame.pack();
-		if((Toolkit.getDefaultToolkit().getScreenSize().height<frame.getHeight())||(Toolkit.getDefaultToolkit().getScreenSize().width<frame.getWidth())){
-			frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-		}
-	}
+//	private void checkFrameSize(){
+//		frame.pack();
+//		if((Toolkit.getDefaultToolkit().getScreenSize().height<frame.getHeight())||(Toolkit.getDefaultToolkit().getScreenSize().width<frame.getWidth())){
+//			frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+//		}
+//	}
 
 	public void makeFrame(){
 		frame = new JFrame("Uncertainty Calculator");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel contentPane = (JPanel) frame.getContentPane();
 		contentPane.setBorder(new EmptyBorder(12, 12, 12, 12));
 		//makeMenu(frame);
@@ -83,39 +86,39 @@ public class MainCalculatorGUI implements ActionListener {
 		frame.setVisible(true);
 	}
 
-	private void makeMenu(JFrame inputFrame){
-		final int SHORTCUT_MASK =
-				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-
-		JMenuBar menubar = new JMenuBar();
-		inputFrame.setJMenuBar(menubar);
-
-		JMenu menu;
-		JMenuItem item;
-
-		// create the File menu
-		menu = new JMenu("Actions");
-		menubar.add(menu);
-
-		//		item = new JMenuItem("Exit");
-		//		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_MASK));
-		//		item.addActionListener(new ActionListener() {
-		//			public void actionPerformed(ActionEvent e) { 
-		//				System.out.println("It worked!");
-		//			}
-		//		});
-		//		menu.add(item);
-
-		item = new JMenuItem("Exit");
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, SHORTCUT_MASK));
-		item.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { 
-				System.exit(0);
-			}
-		});
-		menu.add(item);
-
-	}
+//	private void makeMenu(JFrame inputFrame){
+//		final int SHORTCUT_MASK =
+//				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+//
+//		JMenuBar menubar = new JMenuBar();
+//		inputFrame.setJMenuBar(menubar);
+//
+//		JMenu menu;
+//		JMenuItem item;
+//
+//		// create the File menu
+//		menu = new JMenu("Actions");
+//		menubar.add(menu);
+//
+//		//		item = new JMenuItem("Exit");
+//		//		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_MASK));
+//		//		item.addActionListener(new ActionListener() {
+//		//			public void actionPerformed(ActionEvent e) { 
+//		//				System.out.println("It worked!");
+//		//			}
+//		//		});
+//		//		menu.add(item);
+//
+//		item = new JMenuItem("Exit");
+//		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, SHORTCUT_MASK));
+//		item.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent e) { 
+//				System.exit(0);
+//			}
+//		});
+//		menu.add(item);
+//
+//	}
 
 	@Override
 	public void actionPerformed(ActionEvent ae) {
@@ -125,6 +128,12 @@ public class MainCalculatorGUI implements ActionListener {
 		}
 
 		if(ae.getSource() == infoButton){
+			try{
+			URI url = new URI("https://github.com/andrew-gough/Uncertainty-Calculator");
+			Desktop.getDesktop().browse(url);
+			}catch(Exception e){
+				System.out.println("Exception for some reason?");
+			}
 			System.out.println("Info Should Output");
 		}
 
@@ -141,8 +150,12 @@ public class MainCalculatorGUI implements ActionListener {
 			}else{
 				System.out.println("Data is all in!");
 				calculator.calculateAverageDataSet();
-				calculator.printAllDataSetsToConsole();
-				calculator.printAverageDataSetToConsole();
+				calculator.fillMaxMinusMin();
+				//calculator.printAllDataSetsToConsole();
+				//calculator.printAverageDataSetToConsole();
+				frame.dispose();
+				display.makeFrame();
+				
 			}
 			
 		}
