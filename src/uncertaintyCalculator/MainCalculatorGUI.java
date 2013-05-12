@@ -48,6 +48,7 @@ public class MainCalculatorGUI implements ActionListener {
 			System.out.println("User Exited the Data Entry");
 			return;
 		}
+		frame.setVisible(false);
 		numberOfSets = (int) Integer.parseInt(input.trim());
 		dataSets.add(new InputFrame(this,0));
 		dataSets.get(0).makeFrame();
@@ -162,6 +163,7 @@ public class MainCalculatorGUI implements ActionListener {
 
 		if(ae.getActionCommand().equals("DataExit")){
 			System.out.println("Data Exit!");
+			frame.setVisible(true);
 		}
 
 	}

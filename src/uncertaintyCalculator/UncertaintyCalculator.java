@@ -47,20 +47,25 @@ public class UncertaintyCalculator {
 			maxMin = new ArrayList<Double>();
 			i++;
 		}
-		System.out.println(maxMinusMin);
-		
+		//System.out.println(maxMinusMin);
+
 		
 		i = 0;
 		ii = 0;
 		while(i<maxMinusMin.size()){
 			while(ii<maxMinusMin.get(i).size()){
+				//This if statement prevents NaNs by not dividing by 0 and instead dividing by the minimum value of doubles
+				if(averageDataSet.get(i).get(ii) != 0){
 				maxMinusMin.get(i).set(ii,(100*maxMinusMin.get(i).get(ii))/averageDataSet.get(i).get(ii));
+				}else{
+					maxMinusMin.get(i).set(ii,(100*maxMinusMin.get(i).get(ii))/Double.MIN_VALUE);
+				}
 				ii++;
 			}
 			ii = 0;
 			i++;
 		}
-		System.out.println(maxMinusMin);
+		//System.out.println(maxMinusMin);
 		
 		i = 0;
 		ii = 0;
@@ -74,7 +79,7 @@ public class UncertaintyCalculator {
 			i = 0;
 			ii++;
 		}
-		System.out.println(percentageUncert);
+		//System.out.println(percentageUncert);
 		
 		
 	}
@@ -153,7 +158,7 @@ public class UncertaintyCalculator {
 		while(i<lines.size()){
 			ArrayList<Double> inputArrayList = new ArrayList<Double>();
 			Scanner a = new Scanner(lines.get(i));
-			a.useDelimiter(" ");
+			a.useDelimiter(" |\t");
 			while(a.hasNext()){
 				inputArrayList.add(a.nextDouble());
 			}	

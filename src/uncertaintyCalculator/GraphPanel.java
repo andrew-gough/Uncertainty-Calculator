@@ -155,7 +155,7 @@ public class GraphPanel extends JPanel {
         constant = ybar - gradient * xbar;
 
         // print results
-        System.out.println("y   = " + gradient + " * x + " + constant);
+//        System.out.println("y   = " + gradient + " * x + " + constant);
 
         // analyze results
         int df = n - 2;
@@ -170,15 +170,15 @@ public class GraphPanel extends JPanel {
         double svar  = rss / df;
         double svar1 = svar / xxbar;
         double svar0 = svar/n + xbar*xbar*svar1;
-        System.out.println("R^2                 = " + RSquared);
-        System.out.println("std error of beta_1 = " + Math.sqrt(svar1));
-        System.out.println("std error of beta_0 = " + Math.sqrt(svar0));
-        svar0 = svar * sumx2 / (n * xxbar);
-        System.out.println("std error of beta_0 = " + Math.sqrt(svar0));
+//        System.out.println("R^2                 = " + RSquared);
+//        System.out.println("std error of beta_1 = " + Math.sqrt(svar1));
+//        System.out.println("std error of beta_0 = " + Math.sqrt(svar0));
+//        svar0 = svar * sumx2 / (n * xxbar);
+//        System.out.println("std error of beta_0 = " + Math.sqrt(svar0));
 
-        System.out.println("SSTO = " + yybar);
-        System.out.println("SSE  = " + rss);
-        System.out.println("SSR  = " + ssr);
+//        System.out.println("SSTO = " + yybar);
+//        System.out.println("SSE  = " + rss);
+//        System.out.println("SSR  = " + ssr);
 	}
 	
     public void paintComponent(Graphics g)
@@ -200,7 +200,7 @@ public class GraphPanel extends JPanel {
         		xValue = (int)(xMultiplier*xAxis.get(i));
         		yValue = (int)(yMultiplier*yAxis.get(i));;
         		g.setColor(Color.black);
-        		g.fillOval(xValue-markSize,(size.height-yValue)+markSize,markSize,markSize);
+        		g.fillOval(xValue,(size.height-yValue)-markSize,markSize,markSize);
         		i++;
         	}
         

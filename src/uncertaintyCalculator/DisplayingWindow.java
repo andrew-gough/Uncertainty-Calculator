@@ -204,7 +204,7 @@ public class DisplayingWindow implements ItemListener {
 		s.append("\n");
 		
 		s.append("\n");
-		s.append("Graphical Uncertainty = ±");
+		s.append("Uncertainty in gradient = ±");
 		s.append(100D*Math.pow(((1-graphDisplayer.getRSquared())/(graphDisplayer.getNumberOfPoints()-2)), 0.5)); 
 		s.append("%");
 		s.append("\n");
