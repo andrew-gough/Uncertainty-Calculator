@@ -3,6 +3,8 @@ package uncertaintyCalculator;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import javax.swing.JOptionPane;
+
 public class UncertaintyCalculator {
 
 	private ArrayList<ArrayList<ArrayList<Double>>> storedData;
@@ -155,6 +157,7 @@ public class UncertaintyCalculator {
 		s.close();
 		int i = 0;
 		ArrayList<ArrayList<Double>> individual = new ArrayList<ArrayList<Double>>();
+		try{
 		while(i<lines.size()){
 			ArrayList<Double> inputArrayList = new ArrayList<Double>();
 			Scanner a = new Scanner(lines.get(i));
@@ -165,6 +168,12 @@ public class UncertaintyCalculator {
 			a.close();
 			individual.add(inputArrayList);
 			i++;
+		}
+		}catch(Exception e){
+			e.printStackTrace();
+			System.out.println("Exception Caught!");
+			JOptionPane.showMessageDialog(null, "Make Sure You Entered in a Valid Set Of Data","Data Error Error",JOptionPane.WARNING_MESSAGE);
+			return false;
 		}
 		storedData.add(individual);
 		return true;

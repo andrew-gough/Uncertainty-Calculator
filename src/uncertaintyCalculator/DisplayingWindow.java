@@ -7,6 +7,8 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -17,7 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
-public class DisplayingWindow implements ItemListener {
+public class DisplayingWindow implements ItemListener,MouseListener{
 	private UncertaintyCalculator dataStorage;
 	private JFrame frame;
 	private JLabel xAxisLabel;
@@ -31,9 +33,11 @@ public class DisplayingWindow implements ItemListener {
 	private JTextPane unCertaintyTextPane;
 	private JScrollPane unCertaintyScrollPane;
 	private GraphPanel graphDisplayer;
+	private GraphWindow graphWindow;
 
 	public DisplayingWindow(UncertaintyCalculator input){
 		dataStorage = input;
+		graphWindow = new GraphWindow();
 	}
 
 	public void makeFrame(){
@@ -138,6 +142,7 @@ public class DisplayingWindow implements ItemListener {
 
 		graphDisplayer = new GraphPanel();
 		graphDisplayer.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		graphDisplayer.addMouseListener(this);
 		c.gridwidth = 1;
 		c.gridheight = 3;
 		c.fill = GridBagConstraints.BOTH;
@@ -151,7 +156,10 @@ public class DisplayingWindow implements ItemListener {
 		yAxisCombo.addItemListener(this);
 
 		graphDisplayer.setXAxis(dataStorage.getAverageDataColumn(Integer.parseInt((xAxisCombo.getSelectedItem().toString().substring(7)))-1));
+		graphWindow.updateXAxis(dataStorage.getAverageDataColumn(Integer.parseInt((xAxisCombo.getSelectedItem().toString().substring(7)))-1));
+		
 		graphDisplayer.setYAxis(dataStorage.getAverageDataColumn(Integer.parseInt((yAxisCombo.getSelectedItem().toString().substring(7)))-1));
+		graphWindow.updateYAxis(dataStorage.getAverageDataColumn(Integer.parseInt((yAxisCombo.getSelectedItem().toString().substring(7)))-1));
 		
 		xAxisTextPane.setText(arrayListIntoString(dataStorage.getAverageDataColumn(Integer.parseInt((xAxisCombo.getSelectedItem().toString().substring(7)))-1)));
 		yAxisTextPane.setText(arrayListIntoString(dataStorage.getAverageDataColumn(Integer.parseInt((xAxisCombo.getSelectedItem().toString().substring(7)))-1)));
@@ -186,13 +194,20 @@ public class DisplayingWindow implements ItemListener {
 	}
 	
 	private void updateUncertaintyField(){
-		graphDisplayer.calculateData();
+		//graphDisplayer.calculateData();
 		StringBuilder s = new StringBuilder();
 		s.append("Line of Best Fit : ");
 		s.append("y = ");
 		s.append(graphDisplayer.getGradient()); 
-		s.append("x + ");
-		s.append(graphDisplayer.getConstant());
+		s.append("x ");
+		if(graphDisplayer.getConstant()>0){
+			s.append("+");
+			s.append(" " + graphDisplayer.getConstant());
+		}
+		if(graphDisplayer.getConstant()<0){
+			s.append("-");
+			s.append(" " + Math.abs(graphDisplayer.getConstant()));
+		}
 		s.append("\n");
 		
 		s.append("RSquared = ");
@@ -234,14 +249,47 @@ public class DisplayingWindow implements ItemListener {
 		if(ie.getSource()==xAxisCombo){
 			xAxisTextPane.setText(arrayListIntoString(dataStorage.getAverageDataColumn(Integer.parseInt((xAxisCombo.getSelectedItem().toString().substring(7)))-1)));
 			graphDisplayer.setXAxis(dataStorage.getAverageDataColumn(Integer.parseInt((xAxisCombo.getSelectedItem().toString().substring(7)))-1));
+			graphWindow.updateXAxis(dataStorage.getAverageDataColumn(Integer.parseInt((xAxisCombo.getSelectedItem().toString().substring(7)))-1));
 		}
 
 		if(ie.getSource()==yAxisCombo){
 			yAxisTextPane.setText(arrayListIntoString(dataStorage.getAverageDataColumn(Integer.parseInt((yAxisCombo.getSelectedItem().toString().substring(7)))-1)));
 			graphDisplayer.setYAxis(dataStorage.getAverageDataColumn(Integer.parseInt((yAxisCombo.getSelectedItem().toString().substring(7)))-1));
+			graphWindow.updateYAxis(dataStorage.getAverageDataColumn(Integer.parseInt((yAxisCombo.getSelectedItem().toString().substring(7)))-1));
 		}
 		updateUncertaintyField();
-
 	}
+
+
+	public void mouseClicked(MouseEvent arg0) {
+
+		
+	}
+
+
+	public void mouseEntered(MouseEvent arg0) {
+		
+		
+	}
+
+
+	public void mouseExited(MouseEvent arg0) {
+		
+		
+	}
+
+
+	public void mousePressed(MouseEvent arg0) {
+
+		
+	}
+
+
+	public void mouseReleased(MouseEvent arg0) {
+		graphWindow.setSize(graphDisplayer.getSize());
+		graphWindow.showFrame();
+	}
+
+
 
 }

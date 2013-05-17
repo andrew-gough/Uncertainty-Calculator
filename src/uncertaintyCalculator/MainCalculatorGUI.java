@@ -144,7 +144,10 @@ public class MainCalculatorGUI implements ActionListener {
 
 		if(ae.getActionCommand().equals("DataIn")){
 			System.out.println("Data Input!");
-			calculator.addDataSet(dataSets.get(dataSets.size()-1).getInput());
+			if(!calculator.addDataSet(dataSets.get(dataSets.size()-1).getInput())){
+				frame.setVisible(true);
+				return;
+			}
 			if (dataSets.size()<numberOfSets){
 				dataSets.add(new InputFrame(this,dataSets.size()));
 				dataSets.get(dataSets.size()-1).makeFrame();
