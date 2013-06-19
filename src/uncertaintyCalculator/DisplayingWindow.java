@@ -1,20 +1,29 @@
 package uncertaintyCalculator;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
@@ -49,7 +58,7 @@ public class DisplayingWindow implements ItemListener,MouseListener{
 
 		GridBagConstraints c = new GridBagConstraints();
 
-		
+
 		xAxisLabel = new JLabel("X Axis:");
 		c.gridwidth = 1;
 		c.gridheight = 1;
@@ -59,9 +68,9 @@ public class DisplayingWindow implements ItemListener,MouseListener{
 		c.gridx = 0;
 		c.gridy = 0;
 		contentPane.add(xAxisLabel,c);
-		
+
 		yAxisLabel = new JLabel("Y Axis:");
-		
+
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		c.fill = GridBagConstraints.BOTH;
@@ -70,7 +79,7 @@ public class DisplayingWindow implements ItemListener,MouseListener{
 		c.gridx = 1;
 		c.gridy = 0;
 		contentPane.add(yAxisLabel,c);
-		
+
 		xAxisCombo = new JComboBox<String>();
 
 		c.gridwidth = 1;
@@ -143,6 +152,7 @@ public class DisplayingWindow implements ItemListener,MouseListener{
 		graphDisplayer = new GraphPanel();
 		graphDisplayer.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		graphDisplayer.addMouseListener(this);
+		graphDisplayer.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		c.gridwidth = 1;
 		c.gridheight = 3;
 		c.fill = GridBagConstraints.BOTH;
@@ -157,19 +167,63 @@ public class DisplayingWindow implements ItemListener,MouseListener{
 
 		graphDisplayer.setXAxis(dataStorage.getAverageDataColumn(Integer.parseInt((xAxisCombo.getSelectedItem().toString().substring(7)))-1));
 		graphWindow.updateXAxis(dataStorage.getAverageDataColumn(Integer.parseInt((xAxisCombo.getSelectedItem().toString().substring(7)))-1));
-		
+
 		graphDisplayer.setYAxis(dataStorage.getAverageDataColumn(Integer.parseInt((yAxisCombo.getSelectedItem().toString().substring(7)))-1));
 		graphWindow.updateYAxis(dataStorage.getAverageDataColumn(Integer.parseInt((yAxisCombo.getSelectedItem().toString().substring(7)))-1));
-		
+
 		xAxisTextPane.setText(arrayListIntoString(dataStorage.getAverageDataColumn(Integer.parseInt((xAxisCombo.getSelectedItem().toString().substring(7)))-1)));
 		yAxisTextPane.setText(arrayListIntoString(dataStorage.getAverageDataColumn(Integer.parseInt((xAxisCombo.getSelectedItem().toString().substring(7)))-1)));
 
+		makeMenuBar(frame);
+
 		updateUncertaintyField();
-		
+
 		frame.pack();
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(d.width/2 - frame.getWidth()/2, d.height/2 - frame.getHeight()/2);
 		frame.setVisible(true);
+	}
+
+	private void makeMenuBar(JFrame frame)
+	{
+		final int SHORTCUT_MASK =
+				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+
+		JMenuBar menubar = new JMenuBar();
+		frame.setJMenuBar(menubar);
+
+		JMenu menu;
+		JMenuItem item;
+
+		// create the File menu
+		menu = new JMenu("File");
+		menubar.add(menu);
+
+		item = new JMenuItem("Export Data to Text File");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) { 
+
+				JFileChooser chooser = new JFileChooser();
+				int option = chooser.showSaveDialog(null);
+				if (option == JFileChooser.APPROVE_OPTION)
+				{
+					File outputFile = chooser.getSelectedFile();
+
+
+
+					if(!chooser.getSelectedFile().getAbsolutePath().endsWith(".txt")){
+						outputFile = new File(chooser.getSelectedFile() + ".txt");
+					}
+					if(!dataStorage.outputDataToFile(outputFile)){
+						JOptionPane.showMessageDialog(null, "Save Failed.","Warning",JOptionPane.WARNING_MESSAGE);
+					}
+
+
+				}
+			}
+		});
+		menu.add(item);
+
 	}
 
 	public void populateComboBoxes(){
@@ -192,7 +246,7 @@ public class DisplayingWindow implements ItemListener,MouseListener{
 		return s.toString().trim();
 
 	}
-	
+
 	private void updateUncertaintyField(){
 		//graphDisplayer.calculateData();
 		StringBuilder s = new StringBuilder();
@@ -209,38 +263,38 @@ public class DisplayingWindow implements ItemListener,MouseListener{
 			s.append(" " + Math.abs(graphDisplayer.getConstant()));
 		}
 		s.append("\n");
-		
+
 		s.append("RSquared = ");
 		s.append(graphDisplayer.getRSquared()); 
 		s.append("\n");
-		
+
 		s.append("\n");
 		s.append("Uncertainty derived from the RSquared Value:");
 		s.append("\n");
-		
+
 		s.append("\n");
 		s.append("Uncertainty in gradient = ±");
 		s.append(100D*Math.pow(((1-graphDisplayer.getRSquared())/(graphDisplayer.getNumberOfPoints()-2)), 0.5)); 
 		s.append("%");
 		s.append("\n");
-		
+
 		s.append("\n");
 		s.append("Uncertainties derived from the Random Uncertainty Value:");
 		s.append("\n");
-		
+
 		s.append("\n");
 		s.append("Uncertainty in X = ±");
 		s.append(dataStorage.getColumnUnCert(Integer.parseInt((xAxisCombo.getSelectedItem().toString().substring(7)))-1));
 		s.append("%");
 		s.append("\n");
-		
+
 		s.append("Uncertainty in Y = ±");
 		s.append(dataStorage.getColumnUnCert(Integer.parseInt((yAxisCombo.getSelectedItem().toString().substring(7)))-1));
 		s.append("%");
 
-		
+
 		unCertaintyTextPane.setText(s.toString());
-		
+
 	}
 
 	@Override
@@ -263,25 +317,25 @@ public class DisplayingWindow implements ItemListener,MouseListener{
 
 	public void mouseClicked(MouseEvent arg0) {
 
-		
+
 	}
 
 
 	public void mouseEntered(MouseEvent arg0) {
-		
-		
+
+
 	}
 
 
 	public void mouseExited(MouseEvent arg0) {
-		
-		
+
+
 	}
 
 
 	public void mousePressed(MouseEvent arg0) {
 
-		
+
 	}
 
 

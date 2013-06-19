@@ -1,5 +1,9 @@
 package uncertaintyCalculator;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -18,7 +22,7 @@ public class UncertaintyCalculator {
 		//DataSetIndex,X,Y
 
 	}
-	
+
 	public void fillMaxMinusMin(){
 		int dataNumber = 0;
 		int i = 0;
@@ -51,14 +55,14 @@ public class UncertaintyCalculator {
 		}
 		//System.out.println(maxMinusMin);
 
-		
+
 		i = 0;
 		ii = 0;
 		while(i<maxMinusMin.size()){
 			while(ii<maxMinusMin.get(i).size()){
 				//This if statement prevents NaNs by not dividing by 0 and instead dividing by the minimum value of doubles
 				if(averageDataSet.get(i).get(ii) != 0){
-				maxMinusMin.get(i).set(ii,(100*maxMinusMin.get(i).get(ii))/averageDataSet.get(i).get(ii));
+					maxMinusMin.get(i).set(ii,(100*maxMinusMin.get(i).get(ii))/averageDataSet.get(i).get(ii));
 				}else{
 					maxMinusMin.get(i).set(ii,(100*maxMinusMin.get(i).get(ii))/Double.MIN_VALUE);
 				}
@@ -68,7 +72,7 @@ public class UncertaintyCalculator {
 			i++;
 		}
 		//System.out.println(maxMinusMin);
-		
+
 		i = 0;
 		ii = 0;
 		double total = 0;
@@ -82,8 +86,8 @@ public class UncertaintyCalculator {
 			ii++;
 		}
 		//System.out.println(percentageUncert);
-		
-		
+
+
 	}
 
 
@@ -92,20 +96,20 @@ public class UncertaintyCalculator {
 		storedData.clear();
 		percentageUncert.clear();
 	}
-	
-	
+
+
 	public double getColumnUnCert(int index){
 		return percentageUncert.get(index);
 	}
-	
+
 	public int getColumnsOfData(){
 		return averageDataSet.get(0).size();
 	}
-	
+
 	public int getSetsOfData(){
 		return storedData.size();
 	}
-	
+
 	public ArrayList<ArrayList<Double>> getDataSet(int index){
 		if(index<0||index>=storedData.size()){
 			return null;
@@ -113,11 +117,11 @@ public class UncertaintyCalculator {
 			return storedData.get(index);
 		}
 	}
-	
+
 	public ArrayList<ArrayList<Double>> getAverageDataSet(){
 		return averageDataSet;
 	}
-	
+
 	public ArrayList<Double> getAverageDataColumn(int column){
 		int i = 0;
 		ArrayList<Double> output = new ArrayList<Double>();
@@ -127,7 +131,7 @@ public class UncertaintyCalculator {
 		}
 		return output;
 	}
-	
+
 	public void calculateAverageDataSet(){
 		int yCoord = 0;
 		while(yCoord < storedData.get(0).size()){
@@ -136,7 +140,7 @@ public class UncertaintyCalculator {
 			while(xCoord<storedData.get(0).get(yCoord).size()){
 				Double averageData = 0D;
 				for(ArrayList<ArrayList<Double>> item : storedData ){
-					   averageData = averageData + item.get(yCoord).get(xCoord);
+					averageData = averageData + item.get(yCoord).get(xCoord);
 				}
 				averageData = averageData/storedData.size();
 				inputArrayList.add(averageData);
@@ -158,17 +162,17 @@ public class UncertaintyCalculator {
 		int i = 0;
 		ArrayList<ArrayList<Double>> individual = new ArrayList<ArrayList<Double>>();
 		try{
-		while(i<lines.size()){
-			ArrayList<Double> inputArrayList = new ArrayList<Double>();
-			Scanner a = new Scanner(lines.get(i));
-			a.useDelimiter(" |\t");
-			while(a.hasNext()){
-				inputArrayList.add(a.nextDouble());
-			}	
-			a.close();
-			individual.add(inputArrayList);
-			i++;
-		}
+			while(i<lines.size()){
+				ArrayList<Double> inputArrayList = new ArrayList<Double>();
+				Scanner a = new Scanner(lines.get(i));
+				a.useDelimiter(" |\t");
+				while(a.hasNext()){
+					inputArrayList.add(a.nextDouble());
+				}	
+				a.close();
+				individual.add(inputArrayList);
+				i++;
+			}
 		}catch(Exception e){
 			e.printStackTrace();
 			System.out.println("Exception Caught!");
@@ -178,48 +182,169 @@ public class UncertaintyCalculator {
 		storedData.add(individual);
 		return true;
 	}
-	
-	
+
+
 	//This Method just prints all the Data Sets to the console
+
 	public void printAllDataSetsToConsole(){
-		System.out.println(" ");
 		int dataSetNumber = 0;
+		StringBuilder output = new StringBuilder();
 		while(dataSetNumber < storedData.size()){
-			System.out.println("Data Set Number : " + (dataSetNumber + 1));
-			System.out.println(" ");
+			output.append("Data Set Number : " + (dataSetNumber + 1));
+			output.append("\n");
 			int yCoord = 0;
 			while(yCoord < storedData.get(dataSetNumber).size()){
 				int xCoord = 0;
 				while(xCoord<storedData.get(dataSetNumber).get(yCoord).size()){
-					System.out.println(storedData.get(dataSetNumber).get(yCoord).get(xCoord));
+					output.append(storedData.get(dataSetNumber).get(yCoord).get(xCoord));
+					output.append(" ");
 					xCoord++;
 				}
+				output.append("\n");
 				yCoord++;
 			}
 			dataSetNumber++;
-			System.out.println(" ");
+			output.append("\n");
 		}
-	System.out.println("Printing the whole ArrayList");
-	System.out.println(" ");
-	System.out.println(storedData);
+		System.out.println(output.toString().trim());
+
 	}
-	
+
+	//	public void printAllDataSetsToConsole(){
+	//		System.out.println(" ");
+	//		int dataSetNumber = 0;
+	//		while(dataSetNumber < storedData.size()){
+	//			System.out.println("Data Set Number : " + (dataSetNumber + 1));
+	//			System.out.println(" ");
+	//			int yCoord = 0;
+	//			while(yCoord < storedData.get(dataSetNumber).size()){
+	//				int xCoord = 0;
+	//				while(xCoord<storedData.get(dataSetNumber).get(yCoord).size()){
+	//					System.out.println(storedData.get(dataSetNumber).get(yCoord).get(xCoord));
+	//					xCoord++;
+	//				}
+	//				yCoord++;
+	//			}
+	//			dataSetNumber++;
+	//			System.out.println(" ");
+	//		}
+	//
+	//	}
+
+
 	public void printAverageDataSetToConsole(){
 		System.out.println(" ");
 		System.out.println("Average Data Set:");
 		System.out.println(" ");
+		StringBuilder output = new StringBuilder();
+		int yCoord = 0;
+		while(yCoord < averageDataSet.size()){
+			int xCoord = 0;
+			while(xCoord<averageDataSet.get(yCoord).size()){
+				output.append(averageDataSet.get(yCoord).get(xCoord));
+				output.append(" ");
+				//					System.out.println(averageDataSet.get(yCoord).get(xCoord));
+				xCoord++;
+			}
+			System.out.println(output.toString().trim());
+			output.setLength(0);
+			yCoord++;
+		}
+
+	}
+
+	//	public void printAverageDataSetToConsole(){
+	//		System.out.println(" ");
+	//		System.out.println("Average Data Set:");
+	//		System.out.println(" ");
+	//			int yCoord = 0;
+	//			while(yCoord < averageDataSet.size()){
+	//				int xCoord = 0;
+	//				while(xCoord<averageDataSet.get(yCoord).size()){
+	//					System.out.println(averageDataSet.get(yCoord).get(xCoord));
+	//					xCoord++;
+	//				}
+	//				yCoord++;
+	//			}
+	//
+	//	}
+
+
+	public boolean outputDataToFile(File output){
+		try{
+			FileWriter writer = new FileWriter(output);
+			BufferedWriter bw = new BufferedWriter(writer);
+			
+			
+			//Writes the number of data sets stored
+			bw.write("Number of Individual Data Sets: "+getSetsOfData());
+			bw.newLine();
+			bw.newLine();
+			//Writes the data from the average data set
+			bw.write("Average Data Set:");
+			bw.newLine();
+			bw.newLine();
 			int yCoord = 0;
 			while(yCoord < averageDataSet.size()){
 				int xCoord = 0;
 				while(xCoord<averageDataSet.get(yCoord).size()){
-					System.out.println(averageDataSet.get(yCoord).get(xCoord));
+					bw.write(averageDataSet.get(yCoord).get(xCoord).toString());
+					bw.write("\t");
+					//					System.out.println(averageDataSet.get(yCoord).get(xCoord));
 					xCoord++;
 				}
 				yCoord++;
+				bw.newLine();
 			}
-	System.out.println("Printing the whole Average ArrayList");
-	System.out.println(" ");
-	System.out.println(averageDataSet);
-	}
+			bw.newLine();
+			
+			//Writes all the data from the individual data sets
 
+
+			int dataSetNumber = 0;
+			while(dataSetNumber < storedData.size()){
+				bw.write("Data Set Number : " + (dataSetNumber + 1));
+				bw.newLine();
+				bw.newLine();
+				yCoord = 0;
+				while(yCoord < storedData.get(dataSetNumber).size()){
+					int xCoord = 0;
+					while(xCoord<storedData.get(dataSetNumber).get(yCoord).size()){
+						bw.write(storedData.get(dataSetNumber).get(yCoord).get(xCoord).toString());
+						bw.write("\t");
+						xCoord++;
+					}
+					bw.newLine();
+					yCoord++;
+				}
+				dataSetNumber++;
+				bw.newLine();
+			}
+			
+			bw.newLine();
+			
+			bw.write("Percentage Uncertainty in Columns:");
+			bw.newLine();
+			bw.newLine();
+			int i = 0;
+			while(i < percentageUncert.size()){
+			
+				bw.write("Column "+ (i+1) + ":  ±" + percentageUncert.get(i)+ "%");
+				bw.newLine();
+				i++;
+			}
+			
+
+
+			bw.close();
+			return true;
+		}catch(IOException e){
+			System.out.println("File wasn't accessed for whatever reason");
+			return false;
+		}
+
+
+
+
+	}
 }

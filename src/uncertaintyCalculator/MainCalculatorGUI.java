@@ -37,15 +37,13 @@ public class MainCalculatorGUI implements ActionListener {
 	private void startDataEntry() {
 		calculator.clearData();
 		dataSets.clear();
-		System.out.println("Data Entry Started!");
-		String input = JOptionPane.showInputDialog("How Many Sets of Data Are you Going to inport?");
+		String input = JOptionPane.showInputDialog("How Many Sets of Data Are you Going to input?");
 		try{
 			Integer.parseInt(input.trim());
 		}catch(NumberFormatException e){
 			JOptionPane.showMessageDialog(frame, "Make Sure You Typed In a Valid Number","Number Error",JOptionPane.WARNING_MESSAGE);
 			return;
 		}catch(NullPointerException e){
-			System.out.println("User Exited the Data Entry");
 			return;
 		}
 		frame.setVisible(false);
@@ -143,7 +141,6 @@ public class MainCalculatorGUI implements ActionListener {
 		}
 
 		if(ae.getActionCommand().equals("DataIn")){
-			System.out.println("Data Input!");
 			if(!calculator.addDataSet(dataSets.get(dataSets.size()-1).getInput())){
 				frame.setVisible(true);
 				return;
@@ -152,7 +149,6 @@ public class MainCalculatorGUI implements ActionListener {
 				dataSets.add(new InputFrame(this,dataSets.size()));
 				dataSets.get(dataSets.size()-1).makeFrame();
 			}else{
-				System.out.println("Data is all in!");
 				calculator.calculateAverageDataSet();
 				calculator.fillMaxMinusMin();
 				//calculator.printAllDataSetsToConsole();
@@ -165,7 +161,6 @@ public class MainCalculatorGUI implements ActionListener {
 		}
 
 		if(ae.getActionCommand().equals("DataExit")){
-			System.out.println("Data Exit!");
 			frame.setVisible(true);
 		}
 

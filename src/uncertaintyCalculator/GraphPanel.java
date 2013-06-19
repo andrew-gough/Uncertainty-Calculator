@@ -1,20 +1,28 @@
 package uncertaintyCalculator;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.LayoutManager;
 import java.util.ArrayList;
 
 import java.awt.Dimension;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 
 import com.andrew.util.Maths;
 
 public class GraphPanel extends JPanel {
 
-
+	private String xLabel = "";
+	private String yLabel = "";
 	private ArrayList<Double> xAxis;
 	private ArrayList<Double> yAxis;
 	private Double maxX;
@@ -38,7 +46,6 @@ public class GraphPanel extends JPanel {
 
 
 	public GraphPanel(ArrayList<Double> xAxis ,ArrayList<Double> yAxis){
-
 		xAxis = new ArrayList<Double>();
 		yAxis = new ArrayList<Double>();
 
@@ -69,6 +76,37 @@ public class GraphPanel extends JPanel {
 		return new GraphPanel(graph.getXAxis(), graph.getYAxis());
 	}
 
+	public void saveCurrentGraph(){
+		JFileChooser chooser = new JFileChooser();
+		int option = chooser.showSaveDialog(null);
+		if (option == JFileChooser.APPROVE_OPTION)
+		{
+			File outputFile = chooser.getSelectedFile();
+		
+		
+
+			if(!chooser.getSelectedFile().getAbsolutePath().endsWith(".jpg")){
+			    outputFile = new File(chooser.getSelectedFile() + ".jpg");
+			}
+			
+			saveImage(makeBufferedImage(size),outputFile);
+		
+		
+		}    
+	}
+	
+
+
+	public static void saveImage(BufferedImage image, File file)
+	{
+		try {
+			ImageIO.write(image, "jpg", file);
+		}
+		catch(IOException exc) {
+			return;
+		}
+	}
+
 	public void clearGraph()
 	{
 		size = getSize();
@@ -82,7 +120,17 @@ public class GraphPanel extends JPanel {
 	public ArrayList<Double> getYAxis(){
 		return yAxis;
 	}
-
+	
+	public void setXAxisLabel(String input){
+		xLabel = input;
+		repaint();
+	}
+	
+	public void setYAxisLabel(String input){
+		yLabel = input;
+		repaint();
+	}
+	
 	public void setXAxis(ArrayList<Double> xAxis){
 		this.xAxis = xAxis;
 		calculateData();
@@ -194,23 +242,54 @@ public class GraphPanel extends JPanel {
 		//        System.out.println("SSE  = " + rss);
 		//        System.out.println("SSR  = " + ssr);
 	}
-	
+
 	public BufferedImage makeBufferedImage(Dimension imageSize){
 		BufferedImage outputImage = new BufferedImage(imageSize.width,imageSize.height,BufferedImage.TYPE_INT_RGB);
-		Graphics g = outputImage.getGraphics();
+		Graphics2D g = (Graphics2D)outputImage.getGraphics();
 		
 		int xOffset = imageSize.width/10;
 		int yOffset = imageSize.height/10;
+		
+		g.setBackground(Color.WHITE);
+		g.clearRect(0, 0, size.width, size.height);
 		
 		paintPoints(g,xOffset,yOffset);
 		paintGraphAxes(g,xOffset,yOffset);
 		drawLineOfBestFit(g, xOffset, yOffset);
 		drawValues(g,xOffset,yOffset);
+		drawLabels(g,xOffset,yOffset);
+		
+//		drawText(g,50,50,90,"DID IT WORK!?!?!");
 		
 		g.dispose();
 		return outputImage;
 	}
 
+	//theta is in degrees
+	private void drawText(Graphics g, int x, int y, double theta, String label) {
+
+	     Graphics2D g2D = (Graphics2D)g;
+
+	    // Create a rotation transformation for the font.
+	    AffineTransform fontAT = new AffineTransform();
+
+	    // get the current font
+	    Font theFont = g2D.getFont();
+
+	    // Derive a new font using a rotatation transform
+	    fontAT.rotate(Math.toRadians(theta));
+	    Font theDerivedFont = theFont.deriveFont(fontAT);
+
+	    // set the derived font in the Graphics2D context
+	    g2D.setFont(theDerivedFont);
+
+	    // Render a string using the derived font
+	    g2D.drawString(label, x, y);
+
+	    // put the original font back
+	    g2D.setFont(theFont);
+	}
+	
 	public void paintComponent(Graphics g)
 	{
 		size = getSize();
@@ -225,8 +304,27 @@ public class GraphPanel extends JPanel {
 			paintGraphAxes(g,xOffset,yOffset);
 			drawLineOfBestFit(g, xOffset, yOffset);
 			drawValues(g,xOffset,yOffset);
+			drawLabels(g,xOffset,yOffset);
 			g.dispose();
 		}    
+	}
+	
+	private void drawLabels(Graphics g, int xOffset,int yOffset){
+
+		
+		if(((xLabel.length()!=0)||(xLabel!=null))&&(yOffset>24)&&(size.width>250)){
+			//draw X-label at the appropriate bit
+			g.drawString(xLabel,(((size.width+yOffset)/2)-(xLabel.length()*4)), size.height-5);
+		}
+		
+		if(((yLabel.length()!=0)||(yLabel!=null))&&(xOffset>24)&&(size.height>250)){
+			//draw YLabel at the appropriate bit
+
+			drawText(g,5,(((size.height)/2)-(yLabel.length()*4)),90D,yLabel);
+			
+			//drawText(g,100,100,90D,yLabel);
+		
+		}
 	}
 
 	private void drawValues(Graphics g, int xOffset, int yOffset){
@@ -239,10 +337,11 @@ public class GraphPanel extends JPanel {
 		g.setColor(Color.black);
 		int i = 0;
 		if(yOffset>12){
+			//draws X-Axis points
 			while(i<xAxis.size()){
 
 				xValue = Maths.roundToSignificantFigures(xAxis.get(i), 2);
-				g.drawString(Double.toString(xValue),(int)((xAxis.get(i)*xMultiplier))+xOffset, size.height-((yOffset/2)-5));
+				g.drawString(Double.toString(xValue),(int)((xAxis.get(i)*xMultiplier))+xOffset, size.height-((yOffset)-12));
 
 
 				i++;
@@ -250,9 +349,10 @@ public class GraphPanel extends JPanel {
 		}
 		i = 0;
 		if(xOffset>20){
+			//draws Y-Axis points
 			while(i<yAxis.size()){
 				yValue = Maths.roundToSignificantFigures(yAxis.get(i), 2);
-				g.drawString(Double.toString(yValue),2, size.height-((int)((yAxis.get(i)*yMultiplier))+yOffset));
+				g.drawString(Double.toString(yValue),xOffset-20, size.height-((int)((yAxis.get(i)*yMultiplier))+yOffset));
 
 
 				i++;
@@ -310,6 +410,7 @@ public class GraphPanel extends JPanel {
 		g.drawLine(xOffset, size.height - yOffset, size.width, size.height - yOffset);
 
 	}
+	
 
 
 
