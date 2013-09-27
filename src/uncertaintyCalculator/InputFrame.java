@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -43,6 +44,7 @@ public class InputFrame implements DocumentListener,ActionListener,WindowListene
 		frame = new JFrame("Data Set " + (dataSet+1));
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.addWindowListener(this);
+		frame.setIconImage(new ImageIcon(InputFrame.class.getResource("Icon.png")).getImage());
 		JPanel contentPane = (JPanel)frame.getContentPane();
 //		contentPane.setBorder(new EmptyBorder(12, 12, 12, 12));
 		contentPane.setLayout(new GridBagLayout());

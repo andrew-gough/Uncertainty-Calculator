@@ -3,13 +3,13 @@ package uncertaintyCalculator;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -31,6 +31,7 @@ public class GraphWindow implements WindowListener{
 	private void makeFrame(){
 		frame = new JFrame("Graph");
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame.setIconImage(new ImageIcon(GraphWindow.class.getResource("Icon.png")).getImage());
 		frame.addWindowListener(this);
 		JPanel contentPane = (JPanel)frame.getContentPane();
 		contentPane.add(graph, BorderLayout.CENTER);

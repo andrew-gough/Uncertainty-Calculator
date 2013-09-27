@@ -6,11 +6,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.LayoutManager;
 import java.util.ArrayList;
-
 import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -242,6 +243,38 @@ public class GraphPanel extends JPanel {
 		//        System.out.println("SSE  = " + rss);
 		//        System.out.println("SSR  = " + ssr);
 	}
+	
+	public boolean outputProcessToFile(File output){
+		try{
+			FileWriter writer = new FileWriter(output,true);
+			BufferedWriter bw = new BufferedWriter(writer);
+			bw.newLine();
+			bw.newLine();
+			bw.write("Calculation Data for Gradient and Related Uncertainty");
+			bw.newLine();
+			bw.newLine();
+			bw.write("R^2 = " + getRSquared());
+			bw.newLine();
+			bw.write("Gradient = " + getGradient());
+			bw.newLine();
+			bw.write("Constant = " + getConstant());
+			bw.newLine();
+			bw.newLine();
+			bw.write("Equation:");
+			bw.newLine();
+			bw.newLine();
+			bw.write("The Gradient is calculated using the Linear Least Square Regression Formula");
+			bw.newLine();
+			bw.newLine();
+			bw.write("Website explaining equation: http://easycalculation.com/analytical/learn-least-square-regression.php");
+			
+			bw.close();
+			
+		}catch(Exception e){
+			return false;
+		}
+		return true;
+	}
 
 	public BufferedImage makeBufferedImage(Dimension imageSize){
 		BufferedImage outputImage = new BufferedImage(imageSize.width,imageSize.height,BufferedImage.TYPE_INT_RGB);
@@ -348,11 +381,11 @@ public class GraphPanel extends JPanel {
 			}
 		}
 		i = 0;
-		if(xOffset>20){
+		if(xOffset>Double.toString(yValue).length()*10){
 			//draws Y-Axis points
 			while(i<yAxis.size()){
 				yValue = Maths.roundToSignificantFigures(yAxis.get(i), 2);
-				g.drawString(Double.toString(yValue),xOffset-20, size.height-((int)((yAxis.get(i)*yMultiplier))+yOffset));
+				g.drawString(Double.toString(yValue),xOffset-30, size.height-((int)((yAxis.get(i)*yMultiplier))+yOffset));
 
 
 				i++;

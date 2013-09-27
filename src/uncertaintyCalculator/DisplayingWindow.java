@@ -2,6 +2,7 @@ package uncertaintyCalculator;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -16,6 +17,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -27,6 +29,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+
+import com.andrew.util.Maths;
 
 public class DisplayingWindow implements ItemListener,MouseListener{
 	private UncertaintyCalculator dataStorage;
@@ -52,6 +56,7 @@ public class DisplayingWindow implements ItemListener,MouseListener{
 	public void makeFrame(){
 		frame = new JFrame("Data Displayer");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setIconImage(new ImageIcon(DisplayingWindow.class.getResource("Icon.png")).getImage());
 		JPanel contentPane = (JPanel)frame.getContentPane();
 		//		contentPane.setBorder(new EmptyBorder(12, 12, 12, 12));
 		contentPane.setLayout(new GridBagLayout());
@@ -181,6 +186,7 @@ public class DisplayingWindow implements ItemListener,MouseListener{
 		frame.pack();
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(d.width/2 - frame.getWidth()/2, d.height/2 - frame.getHeight()/2);
+		yAxisCombo.setSelectedItem("Column 2");
 		frame.setVisible(true);
 	}
 
@@ -224,6 +230,35 @@ public class DisplayingWindow implements ItemListener,MouseListener{
 		});
 		menu.add(item);
 
+		item = new JMenuItem("Export Computational File");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) { 
+
+				JFileChooser chooser = new JFileChooser();
+				int option = chooser.showSaveDialog(null);
+				if (option == JFileChooser.APPROVE_OPTION)
+				{
+					File outputFile = chooser.getSelectedFile();
+
+
+
+					if(!chooser.getSelectedFile().getAbsolutePath().endsWith(".txt")){
+						outputFile = new File(chooser.getSelectedFile() + ".txt");
+					}
+					if(!dataStorage.outputProcessToFile(outputFile)||!graphDisplayer.outputProcessToFile(outputFile)){
+						JOptionPane.showMessageDialog(null, "Save Failed.","Warning",JOptionPane.WARNING_MESSAGE);
+					}
+					try{
+					Desktop.getDesktop().open(outputFile);
+					}catch(Exception Ex){
+					System.out.println("Exception for some reason?");
+					}
+
+
+				}
+			}
+		});
+		menu.add(item);
 	}
 
 	public void populateComboBoxes(){
@@ -252,7 +287,7 @@ public class DisplayingWindow implements ItemListener,MouseListener{
 		StringBuilder s = new StringBuilder();
 		s.append("Line of Best Fit : ");
 		s.append("y = ");
-		s.append(graphDisplayer.getGradient()); 
+		s.append(Maths.roundToSignificantFigures(graphDisplayer.getGradient(),4)); 
 		s.append("x ");
 		if(graphDisplayer.getConstant()>0){
 			s.append("+");
@@ -260,12 +295,12 @@ public class DisplayingWindow implements ItemListener,MouseListener{
 		}
 		if(graphDisplayer.getConstant()<0){
 			s.append("-");
-			s.append(" " + Math.abs(graphDisplayer.getConstant()));
+			s.append(" " + Math.abs(Maths.roundToSignificantFigures(graphDisplayer.getConstant(),4)));
 		}
 		s.append("\n");
 
 		s.append("RSquared = ");
-		s.append(graphDisplayer.getRSquared()); 
+		s.append(Maths.truncate(graphDisplayer.getRSquared(),4)); 
 		s.append("\n");
 
 		s.append("\n");
@@ -273,9 +308,16 @@ public class DisplayingWindow implements ItemListener,MouseListener{
 		s.append("\n");
 
 		s.append("\n");
-		s.append("Uncertainty in gradient = ±");
-		s.append(100D*Math.pow(((1-graphDisplayer.getRSquared())/(graphDisplayer.getNumberOfPoints()-2)), 0.5)); 
-		s.append("%");
+		s.append("Uncertainty in gradient : ");
+		Double gradUncert = 100D*Math.pow(((1-graphDisplayer.getRSquared())/(graphDisplayer.getNumberOfPoints()-2)), 0.5);
+		if (!(gradUncert.isNaN()||(gradUncert==0.0))) {
+			s.append("±");
+			s.append(Maths.roundToSignificantFigures(100D*Math.pow(((1-graphDisplayer.getRSquared())/(graphDisplayer.getNumberOfPoints()-2)), 0.5),4)); 
+			s.append("%");
+		}else{
+			s.append("There is no uncertainty in the gradient");	
+		}
+
 		s.append("\n");
 
 		s.append("\n");
@@ -283,13 +325,13 @@ public class DisplayingWindow implements ItemListener,MouseListener{
 		s.append("\n");
 
 		s.append("\n");
-		s.append("Uncertainty in X = ±");
-		s.append(dataStorage.getColumnUnCert(Integer.parseInt((xAxisCombo.getSelectedItem().toString().substring(7)))-1));
+		s.append("Uncertainty in X Axis= ±");
+		s.append(Maths.roundToSignificantFigures(dataStorage.getColumnUnCert(Integer.parseInt((xAxisCombo.getSelectedItem().toString().substring(7)))-1),4));
 		s.append("%");
 		s.append("\n");
 
-		s.append("Uncertainty in Y = ±");
-		s.append(dataStorage.getColumnUnCert(Integer.parseInt((yAxisCombo.getSelectedItem().toString().substring(7)))-1));
+		s.append("Uncertainty in Y Axis= ±");
+		s.append(Maths.roundToSignificantFigures(dataStorage.getColumnUnCert(Integer.parseInt((yAxisCombo.getSelectedItem().toString().substring(7)))-1),4));
 		s.append("%");
 
 

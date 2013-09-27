@@ -2,6 +2,8 @@ package uncertaintyCalculator;
 
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -9,10 +11,13 @@ import java.awt.event.ActionListener;
 import java.net.URI;
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 public class MainCalculatorGUI implements ActionListener {
@@ -22,6 +27,7 @@ public class MainCalculatorGUI implements ActionListener {
 	private ArrayList<InputFrame> dataSets;
 	private int numberOfSets;
 	private JFrame frame;
+	private JLabel infoLbl;
 	private JButton exitButton;
 	private JButton startButton;
 	private JButton infoButton;
@@ -62,24 +68,72 @@ public class MainCalculatorGUI implements ActionListener {
 	public void makeFrame(){
 		frame = new JFrame("Uncertainty Calculator");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setIconImage(new ImageIcon(MainCalculatorGUI.class.getResource("Icon.png")).getImage());
 		JPanel contentPane = (JPanel) frame.getContentPane();
-		contentPane.setBorder(new EmptyBorder(12, 12, 12, 12));
+//		contentPane.setBorder(new EmptyBorder(12, 12, 12, 12));
 		//makeMenu(frame);
-		JPanel buttonPanel = new JPanel(new GridLayout(1,3));
+		contentPane.setLayout(new GridBagLayout());
+
+		GridBagConstraints c = new GridBagConstraints();
+
+		infoLbl = new JLabel("Uncertainty Calculator");
+		infoLbl.setHorizontalAlignment( SwingConstants.CENTER );
+		infoLbl.setVerticalAlignment( SwingConstants.CENTER );
+		
+		
+		c.gridwidth = 3;
+		c.gridheight = 1;
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 1;
+		c.weighty = 0.2;
+		c.gridx = 0;
+		c.gridy = 0;
+		contentPane.add(infoLbl,c);
+		
 
 		exitButton = new JButton("Exit");
 		exitButton.addActionListener(this);
+		
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 0.33;
+		c.weighty = 1;
+		c.gridx = 0;
+		c.gridy = 1;
+		contentPane.add(exitButton,c);
+		
+		
 		infoButton = new JButton("Info");
 		infoButton.addActionListener(this);
+		
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 0.33;
+		c.weighty = 1;
+		c.gridx = 1;
+		c.gridy = 1;
+		contentPane.add(infoButton,c);
+		
+		
 		startButton = new JButton("Start");
 		startButton.addActionListener(this);
 
-		buttonPanel.add(exitButton);
-		buttonPanel.add(infoButton);
-		buttonPanel.add(startButton);
-		contentPane.add(buttonPanel);
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 0.33;
+		c.weighty = 1;
+		c.gridx = 2;
+		c.gridy = 1;
+		contentPane.add(startButton,c);
+		
 
-		frame.pack();
+
+//		frame.pack();
+
+		frame.setSize(270, 160);
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(d.width/2 - frame.getWidth()/2, d.height/2 - frame.getHeight()/2);
 		frame.setVisible(true);
@@ -128,7 +182,7 @@ public class MainCalculatorGUI implements ActionListener {
 
 		if(ae.getSource() == infoButton){
 			try{
-			URI url = new URI("https://github.com/andrew-gough/Uncertainty-Calculator");
+			URI url = new URI("https://github.com/andrew-gough/Uncertainty-Calculator/blob/master/README.md");
 			Desktop.getDesktop().browse(url);
 			}catch(Exception e){
 				System.out.println("Exception for some reason?");

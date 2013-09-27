@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import com.andrew.util.Maths;
 
 import javax.swing.JOptionPane;
 
@@ -14,11 +15,15 @@ public class UncertaintyCalculator {
 	private ArrayList<ArrayList<ArrayList<Double>>> storedData;
 	private ArrayList<ArrayList<Double>> averageDataSet;
 	private ArrayList<Double> percentageUncert;
+	private ArrayList<ArrayList<Double>> maxMinusMin;
+	private ArrayList<ArrayList<Double>> calculationMinMax;
 
 	public UncertaintyCalculator(){
 		averageDataSet = new ArrayList<ArrayList<Double>>();
 		percentageUncert = new ArrayList<Double>();
 		storedData = new ArrayList<ArrayList<ArrayList<Double>>>();
+		maxMinusMin = new ArrayList<ArrayList<Double>>();
+		
 		//DataSetIndex,X,Y
 
 	}
@@ -27,7 +32,7 @@ public class UncertaintyCalculator {
 		int dataNumber = 0;
 		int i = 0;
 		int ii = 0;
-		ArrayList<ArrayList<Double>> maxMinusMin = new ArrayList<ArrayList<Double>>();
+		//ArrayList<ArrayList<Double>> maxMinusMin = new ArrayList<ArrayList<Double>>();
 		double max = 0;
 		double min = Double.MAX_VALUE;
 		ArrayList<Double> maxMin = new ArrayList<Double>();
@@ -55,33 +60,55 @@ public class UncertaintyCalculator {
 		}
 		//System.out.println(maxMinusMin);
 
-
+		calculationMinMax = new ArrayList<ArrayList<Double>>();
 		i = 0;
 		ii = 0;
 		while(i<maxMinusMin.size()){
+			calculationMinMax.add(new ArrayList<Double>());
 			while(ii<maxMinusMin.get(i).size()){
+				calculationMinMax.get(i).add(maxMinusMin.get(i).get(ii));
+				ii++;
+			}
+			ii = 0;
+			i++;	
+		}
+//		System.out.println("New ArrayList : ");
+//		System.out.println(calculationMinMax);
+//		System.out.println("OldArrayList : ");
+//		System.out.println(maxMinusMin);
+		
+
+		i = 0;
+		ii = 0;
+		while(i<calculationMinMax.size()){
+			while(ii<calculationMinMax.get(i).size()){
 				//This if statement prevents NaNs by not dividing by 0 and instead dividing by the minimum value of doubles
 				if(averageDataSet.get(i).get(ii) != 0){
-					maxMinusMin.get(i).set(ii,(100*maxMinusMin.get(i).get(ii))/averageDataSet.get(i).get(ii));
+					calculationMinMax.get(i).set(ii,(100*calculationMinMax.get(i).get(ii))/averageDataSet.get(i).get(ii));
 				}else{
-					maxMinusMin.get(i).set(ii,(100*maxMinusMin.get(i).get(ii))/Double.MIN_VALUE);
+					calculationMinMax.get(i).set(ii,(100*calculationMinMax.get(i).get(ii))/Double.MIN_VALUE);
 				}
 				ii++;
 			}
 			ii = 0;
 			i++;
 		}
-		//System.out.println(maxMinusMin);
-
-		i = 0;
+   
+//		System.out.println("New ArrayList : ");
+//		System.out.println(calculationMinMax);
+//		System.out.println("OldArrayList : ");
+//		System.out.println(maxMinusMin);
+		
+		i = 0; 
 		ii = 0;
 		double total = 0;
-		while(ii<maxMinusMin.get(0).size()){
-			while(i<maxMinusMin.size()){
-				total = total + maxMinusMin.get(i).get(ii);
+		while(ii<calculationMinMax.get(0).size()){
+			while(i<calculationMinMax.size()){
+				total = total + calculationMinMax.get(i).get(ii);
 				i++;
 			}
-			percentageUncert.add(total/maxMinusMin.size());
+			percentageUncert.add(total/calculationMinMax.size());
+			total = 0;
 			i = 0;
 			ii++;
 		}
@@ -175,7 +202,7 @@ public class UncertaintyCalculator {
 			}
 		}catch(Exception e){
 			e.printStackTrace();
-			System.out.println("Exception Caught!");
+			System.out.println(" Exception Caught!");
 			JOptionPane.showMessageDialog(null, "Make Sure You Entered in a Valid Set Of Data","Data Error Error",JOptionPane.WARNING_MESSAGE);
 			return false;
 		}
@@ -274,8 +301,8 @@ public class UncertaintyCalculator {
 		try{
 			FileWriter writer = new FileWriter(output);
 			BufferedWriter bw = new BufferedWriter(writer);
-			
-			
+
+
 			//Writes the number of data sets stored
 			bw.write("Number of Individual Data Sets: "+getSetsOfData());
 			bw.newLine();
@@ -297,7 +324,7 @@ public class UncertaintyCalculator {
 				bw.newLine();
 			}
 			bw.newLine();
-			
+
 			//Writes all the data from the individual data sets
 
 
@@ -320,20 +347,152 @@ public class UncertaintyCalculator {
 				dataSetNumber++;
 				bw.newLine();
 			}
-			
+
 			bw.newLine();
-			
+
 			bw.write("Percentage Uncertainty in Columns:");
 			bw.newLine();
 			bw.newLine();
 			int i = 0;
 			while(i < percentageUncert.size()){
-			
+
 				bw.write("Column "+ (i+1) + ":  ±" + percentageUncert.get(i)+ "%");
 				bw.newLine();
 				i++;
 			}
+
+
+			bw.close();
+			return true;
+		}catch(IOException e){
+			System.out.println("File wasn't accessed for whatever reason");
+			return false;
+		}
+
+
+
+
+	}
+
+	public boolean outputProcessToFile(File output){
+		try{
+			FileWriter writer = new FileWriter(output);
+			BufferedWriter bw = new BufferedWriter(writer);
+			int yCoord;
+			int xCoord;
+
+
+			//Calculation walk through
+			bw.newLine();
+			bw.write("Calculation Data for Random Uncertainties:");
+			bw.newLine();
+			bw.newLine();
+			bw.write("First of all, the average data set is constructed from the individual data sets:");
+			bw.newLine();
+			bw.newLine();
+
+			//Writes all the data from the individual data sets
+
+			int dataSetNumber = 0;
+			while(dataSetNumber < storedData.size()){
+				bw.write("Data Set Number : " + (dataSetNumber + 1));
+				bw.newLine();
+				bw.newLine();
+				yCoord = 0;
+				while(yCoord < storedData.get(dataSetNumber).size()){
+					xCoord = 0;
+					while(xCoord<storedData.get(dataSetNumber).get(yCoord).size()){
+						bw.write(storedData.get(dataSetNumber).get(yCoord).get(xCoord).toString());
+						bw.write("\t");
+						xCoord++;
+					}
+					bw.newLine();
+					yCoord++;
+				}
+				dataSetNumber++;
+				bw.newLine();
+			}
+
+			//Writes the data from the average data set
+			bw.write("Average Data Set:");
+			bw.newLine();
+			bw.newLine();
+			yCoord = 0;
+			while(yCoord < averageDataSet.size()){
+				xCoord = 0;
+				while(xCoord<averageDataSet.get(yCoord).size()){
+					bw.write(averageDataSet.get(yCoord).get(xCoord).toString());
+					bw.write("\t");
+					//					System.out.println(averageDataSet.get(yCoord).get(xCoord));
+					xCoord++;
+				}
+				yCoord++;
+				bw.newLine();
+			}
+
+			bw.newLine();
+			bw.newLine();
+			bw.write("Then a table is filled with the Max-Min Calculations:");
+			bw.newLine();
+			bw.newLine();
+
+			bw.write("Max-Min Set:");
+			bw.newLine();
+			bw.newLine();
+			yCoord = 0;
+			while(yCoord < maxMinusMin.size()){
+				xCoord = 0;
+				while(xCoord<maxMinusMin.get(yCoord).size()){
+					bw.write(Maths.roundToSignificantFigures(maxMinusMin.get(yCoord).get(xCoord),2).toString());
+					bw.write("\t");
+					//					System.out.println(averageDataSet.get(yCoord).get(xCoord));
+					xCoord++;
+				}
+				yCoord++;
+				bw.newLine();
+			}
 			
+			bw.newLine();
+			bw.write("The percentage uncertainty in each measurement is calculated using the average set and the MaxMinusMin set");
+			bw.newLine();	
+			bw.newLine();
+			bw.write("Equation:");
+			bw.newLine();	
+			bw.newLine();
+			bw.write("(100*MaxMinusMin)/AverageValue (%)");
+			bw.newLine();	
+			bw.newLine();
+			bw.write("Percentage uncertainty in each measurement :");
+			bw.newLine();
+			bw.newLine();
+			yCoord = 0;
+			while(yCoord < calculationMinMax.size()){
+				xCoord = 0;
+				while(xCoord<calculationMinMax.get(yCoord).size()){
+					bw.write(Maths.roundToSignificantFigures(calculationMinMax.get(yCoord).get(xCoord),2).toString()+ "%");
+					bw.write("\t");
+					//					System.out.println(averageDataSet.get(yCoord).get(xCoord));
+					xCoord++;
+				}
+				yCoord++;
+				bw.newLine();
+			}
+			
+			bw.newLine();	
+			bw.newLine();
+			bw.write("These percentages are averaged out to a single value per column");
+			bw.newLine();
+			bw.newLine();
+			bw.write("Percentage Uncertainty in Columns:");
+			bw.newLine();
+			bw.newLine();
+			int i = 0;
+			while(i < percentageUncert.size()){
+
+				bw.write("Column "+ (i+1) + ":  ±" + Maths.roundToSignificantFigures(percentageUncert.get(i),2)+ "%");
+				bw.newLine();
+				i++;
+			}
 
 
 			bw.close();
